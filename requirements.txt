@@ -1,0 +1,5 @@
+colorama==0.4.4
+pyfiglet==0.8.post1
+requests==2.26.0
+beautifulsoup4==4.10.0
+httpx==0.19.0

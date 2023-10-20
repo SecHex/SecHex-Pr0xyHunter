@@ -1,0 +1,8 @@
+{
+    "webhook_url": "https://canary.discord.com/api/webhooks/1164977342247096371/5cmTnvINa8rdDDjVBtOk_eyYGqn-uS1kZ6JbyeA0YycdHPIvaU5buMHfxA_qGZI6ZzLE",
+    "num_threads": 10,
+    "proxy_file": "proxy.txt",
+    "proxy_scraper": true,
+    "restart_interval": false
+}
+
