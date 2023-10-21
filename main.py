@@ -3,22 +3,43 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from colorama import init, Fore
 import time
-import pyfiglet
+import os
 import json
 import requests
 import asyncio
 from bs4 import BeautifulSoup
+import platform
 
 
 
-banner = pyfiglet.Figlet(font='bloody')
-colored_banner = f"{Fore.RED}{banner.renderText('SecHex')}{Fore.RESET}"
-banner_text = f"{Fore.GREEN}Pr0xyHunter V1.0{Fore.RESET}"
+banner_text = f"""
+{Fore.RED}
+   ▄▄▄▄▄   ▄███▄   ▄█▄     ▄  █ ▄███▄      ▄  
+  █     ▀▄ █▀   ▀  █▀ ▀▄  █   █ █▀   ▀ ▀▄   █ 
+▄  ▀▀▀▀▄   ██▄▄    █   ▀  ██▀▀█ ██▄▄     █ ▀  
+ ▀▄▄▄▄▀    █▄   ▄▀ █▄  ▄▀ █   █ █▄   ▄▀ ▄ █   
+           ▀███▀   ▀███▀     █  ▀███▀  █   ▀▄ 
+                            ▀           ▀                                                                                                                 
+{Fore.RESET}
+"""
+banner_bio = f"{Fore.GREEN}Pr0xyHunter V1.0{Fore.RESET}"
+banner_server = f"{Fore.GREEN}discord.gg/SecHex{Fore.RESET}"
 
-print(colored_banner)
 print(banner_text)
+print(banner_bio)
+print(banner_server)
 init(autoreset=True)
 print_lock = threading.Lock()
+
+
+
+def set_console_title(title):
+    if platform.system() == "Windows":
+        os.system(f"title {title}")
+    else:
+        print(f"\033]0;{title}\007")
+
+set_console_title("Pr0xyHunter V1.0")
 
 
 def scrape_proxies(proxy_file, verbose):
@@ -71,7 +92,7 @@ def test_proxy(ip, port, good_proxies):
 
         if len(response) < 2:
             with print_lock:
-                print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.WHITE}Ping:{Fore.RESET} not pingable")
+                print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.LIGHTRED_EX}Ping:{Fore.RESET} not pingable")
             return
 
         status = response[1]
@@ -81,10 +102,11 @@ def test_proxy(ip, port, good_proxies):
             good_proxies.append(f"{ip}:{port}")
         else:
             with print_lock:
-                print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.WHITE}Ping:{Fore.RESET} not pingable")
+                print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.LIGHTRED_EX}Ping:{Fore.RESET} not pingable")
+
     except:
         with print_lock:
-            print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.WHITE}Ping:{Fore.RESET} not pingable")
+            print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.LIGHTRED_EX}Ping:{Fore.RESET} not pingable")
     finally:
         s.close()
 
@@ -107,6 +129,8 @@ async def main():
         proxy_file = config.get('proxy_file')
         proxy_scraper = config.get('proxy_scraper', False)
         restart_interval = config.get('restart_interval', None)
+
+        await asyncio.sleep(4)
 
     if not webhook_url:
         print("Webhook URL is missing in config.json.")
