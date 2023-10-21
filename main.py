@@ -30,7 +30,7 @@ print(banner_bio)
 print(banner_server)
 init(autoreset=True)
 print_lock = threading.Lock()
-
+previous_thread_count = 0
 
 
 def set_title(title):
@@ -78,9 +78,6 @@ def scrapyyyyy(proxy_file, verbose):
             print(f"Error scraping {url}")
     return proxies
 
-
-
-
 def test_proxy(ip, port, good_proxies):
     try:
         start_time = time.time()
@@ -127,7 +124,14 @@ def discord_webhook(txt_filename, webhook_url):
         print(f"Failed to send TXT file to Discord. Status Code: {response.status_code}")
 
 
-
+def count_active_threads():
+    global previous_thread_count
+    while True:
+        num_active_threads = threading.active_count()
+        if num_active_threads != previous_thread_count:
+            print(f"{Fore.LIGHTCYAN_EX}Active Threads:{Fore.RESET} {num_active_threads}")
+            previous_thread_count = num_active_threads
+        time.sleep(5)
 
 async def main():
     with open('config.json', 'r') as config_file:
@@ -137,6 +141,16 @@ async def main():
         proxy_file = config.get('proxy_file')
         proxy_scraper = config.get('proxy_scraper', False)
         restart_interval = config.get('restart_interval', None)
+        active_threads_enabled = config.get('thread_logs', True)
+
+        if active_threads_enabled:
+            active_thread_checker = threading.Thread(target=count_active_threads)
+            active_thread_checker.daemon = True
+            active_thread_checker.start()
+
+        await asyncio.sleep(4)
+
+
 
         await asyncio.sleep(4)
 
