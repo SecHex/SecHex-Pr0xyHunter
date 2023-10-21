@@ -41,7 +41,7 @@ def set_title(title):
 
 set_title("Pr0xyHunter V1.0")
 
-#Tempor.
+
 def scrapyyyyy(proxy_file, verbose):
     urls = [
         'https://www.socks-proxy.net/',
@@ -79,6 +79,8 @@ def scrapyyyyy(proxy_file, verbose):
     return proxies
 
 
+
+
 def test_proxy(ip, port, good_proxies):
     try:
         start_time = time.time()
@@ -111,14 +113,20 @@ def test_proxy(ip, port, good_proxies):
         s.close()
 
 
+
+
 def discord_webhook(txt_filename, webhook_url):
     files = {'file': (txt_filename, open(txt_filename, 'rb'), 'text/plain')}
     response = requests.post(webhook_url, files=files)
+
+
 
     if response.status_code == 200:
         print(f"proxys '{txt_filename}' sent to Discord successfully!")
     else:
         print(f"Failed to send TXT file to Discord. Status Code: {response.status_code}")
+
+
 
 
 async def main():
@@ -136,40 +144,42 @@ async def main():
         print("Webhook URL is missing in config.json.")
         return
 
-    if proxy_scraper:
-        proxies = scrapyyyyy(proxy_file, verbose=True)
+    while True:
+        if proxy_scraper:
+            proxies = scrapyyyyy(proxy_file, verbose=True)
 
-        with open(proxy_file, 'w') as f:
+            with open(proxy_file, 'w') as f:
+                for proxy in proxies:
+                    f.write(f"{proxy['ip']}:{proxy['port']}\n")
+
+        file_name = proxy_file
+
+        with open(file_name, 'r') as f:
+            proxies = f.readlines()
+
+        good_proxies = []
+
+        if num_threads == 1:
             for proxy in proxies:
-                f.write(f"{proxy['ip']},{proxy['port']}\n")
+                ip, port = proxy.strip().split(':')
+                test_proxy(ip, port, good_proxies)
+        else:
+            with ThreadPoolExecutor(max_workers=num_threads) as executor:
+                for proxy in proxies:
+                    ip, port = proxy.strip().split(':')
+                    executor.submit(test_proxy, ip, port, good_proxies)
 
-    file_name = proxy_file
+        with open("good_proxies.txt", 'w') as f:
+            for proxy in good_proxies:
+                f.write(proxy + "\n")
+        discord_webhook("good_proxies.txt", webhook_url)
 
-    with open(file_name, 'r') as f:
-        proxies = f.readlines()
-
-    good_proxies = []
-
-    if num_threads == 1:
-        for proxy in proxies:
-            ip, port = proxy.strip().split(',')
-            test_proxy(ip, port, good_proxies)
-    else:
-        with ThreadPoolExecutor(max_workers=num_threads) as executor:
-            for proxy in proxies:
-                ip, port = proxy.strip().split(',')
-                executor.submit(test_proxy, ip, port, good_proxies)
-
-    with open("good_proxies.txt", 'w') as f:
-        for proxy in good_proxies:
-            f.write(proxy + "\n")
-    discord_webhook("good_proxies.txt", webhook_url)
-
-    if restart_interval:
-        print(f"Rebooting in {restart_interval} seconds...")
-        await asyncio.sleep(restart_interval)
-        print("Restarting...")
-        asyncio.create_task(main())
+        if restart_interval:
+            print(f"Rebooting in {restart_interval} seconds...")
+            await asyncio.sleep(restart_interval)
+        else:
+            print("Exiting...")
+            break
 
 if __name__ == "__main__":
     asyncio.run(main())
