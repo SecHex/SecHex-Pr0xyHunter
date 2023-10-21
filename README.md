@@ -1,5 +1,5 @@
 # SecHex-Pr0xyHunter V1.0 [BETA]
-b3ta rofl
+"test version"
 
 # Features
 Features:
