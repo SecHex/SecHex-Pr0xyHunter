@@ -33,16 +33,16 @@ print_lock = threading.Lock()
 
 
 
-def set_console_title(title):
+def set_title(title):
     if platform.system() == "Windows":
         os.system(f"title {title}")
     else:
         print(f"\033]0;{title}\007")
 
-set_console_title("Pr0xyHunter V1.0")
+set_title("Pr0xyHunter V1.0")
 
 
-def scrape_proxies(proxy_file, verbose):
+def scrapyyyyy(proxy_file, verbose):
     urls = [
         'https://www.socks-proxy.net/',
     ]
@@ -111,7 +111,7 @@ def test_proxy(ip, port, good_proxies):
         s.close()
 
 
-def send_to_discord_webhook(txt_filename, webhook_url):
+def discord_webhook(txt_filename, webhook_url):
     files = {'file': (txt_filename, open(txt_filename, 'rb'), 'text/plain')}
     response = requests.post(webhook_url, files=files)
 
@@ -137,7 +137,7 @@ async def main():
         return
 
     if proxy_scraper:
-        proxies = scrape_proxies(proxy_file, verbose=True)
+        proxies = scrapyyyyy(proxy_file, verbose=True)
 
         with open(proxy_file, 'w') as f:
             for proxy in proxies:
@@ -163,7 +163,7 @@ async def main():
     with open("good_proxies.txt", 'w') as f:
         for proxy in good_proxies:
             f.write(proxy + "\n")
-    send_to_discord_webhook("good_proxies.txt", webhook_url)
+    discord_webhook("good_proxies.txt", webhook_url)
 
     if restart_interval:
         print(f"Rebooting in {restart_interval} seconds...")
