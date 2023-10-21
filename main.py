@@ -41,7 +41,7 @@ def set_title(title):
 
 set_title("Pr0xyHunter V1.0")
 
-
+#Tempor.
 def scrapyyyyy(proxy_file, verbose):
     urls = [
         'https://www.socks-proxy.net/',
