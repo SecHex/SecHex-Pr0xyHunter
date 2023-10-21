@@ -4,5 +4,6 @@
     "proxy_file": "proxy.txt",
     "proxy_scraper": true,
     "restart_interval": false
+    "thread_logs": true
 }
 
