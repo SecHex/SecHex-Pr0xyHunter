@@ -151,9 +151,6 @@ async def main():
         await asyncio.sleep(4)
 
 
-
-        await asyncio.sleep(4)
-
     if not webhook_url:
         print("Webhook URL is missing in config.json.")
         return
