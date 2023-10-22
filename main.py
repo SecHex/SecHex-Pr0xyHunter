@@ -1,16 +1,16 @@
 import socket
 import threading
-from concurrent.futures import ThreadPoolExecutor
-from colorama import init, Fore
-import time
 import os
 import json
 import requests
 import asyncio
-from bs4 import BeautifulSoup
 import platform
 import time
+from concurrent.futures import ThreadPoolExecutor
+from colorama import init, Fore
 from discord_webhook import DiscordWebhook, DiscordEmbed
+
+from functions.scrapybacky import socks5scrapy, socks4scrapy, socks4scrapy_no2
 
 
 
@@ -44,41 +44,6 @@ def set_title(title):
 set_title("Pr0xyHunter V1.0")
 
 
-def scrapyyyyy(proxy_file, verbose):
-    urls = [
-        'https://www.socks-proxy.net/',
-    ]
-    proxies = []
-    for url in urls:
-        try:
-            response = requests.get(url)
-            soup = BeautifulSoup(response.text, 'html.parser')
-
-            if url == 'https://www.socks-proxy.net/':
-                table = soup.find('table')
-                rows = table.find_all('tr')
-                for row in rows[1:]:
-                    cols = row.find_all('td')
-                    if len(cols) > 0:
-                        ip = cols[0].text.strip()
-                        port = cols[1].text.strip()
-                        country = cols[2].text.strip()
-                        uptime = cols[6].text.strip()
-                        location = ''
-                        if country:
-                            location = country.split(',')[0]
-
-                        proxy = {
-                            'ip': ip,
-                            'port': port,
-                            'uptime': uptime,
-                            'location': location
-                        }
-                        proxies.append(proxy)
-
-        except:
-            print(f"Error scraping {url}")
-    return proxies
 
 def test_proxy(ip, port, good_proxies):
     try:
@@ -147,6 +112,7 @@ async def main():
         restart_interval = config.get('restart_interval', None)
         active_threads_enabled = config.get('thread_logs', True)
 
+
         if active_threads_enabled:
             active_thread_checker = threading.Thread(target=count_active_threads)
             active_thread_checker.daemon = True
@@ -162,7 +128,10 @@ async def main():
 
     while True:
         if proxy_scraper:
-            proxies = scrapyyyyy(proxy_file, verbose=True)
+            proxies_socks4 = socks4scrapy(proxy_file)
+            proxies_socks4_no2 = socks4scrapy_no2(proxy_file)
+            proxies_socks5 = socks5scrapy(proxy_file)
+            proxies = proxies_socks4 + proxies_socks4_no2 + proxies_socks5
 
             with open(proxy_file, 'w') as f:
                 for proxy in proxies:
@@ -193,11 +162,9 @@ async def main():
         num_good_proxies = len(good_proxies)
         scan_duration = time.time() - start_time
 
-        embed = DiscordEmbed(title="SecHex-Pr0xyHunter V1.0",
-                             color=16777215)
+        embed = DiscordEmbed(title="SecHex-Pr0xyHunter V1.0", color=16777215)
         embed.set_description(
             f"Found **{num_good_proxies}** good proxies in **{scan_duration:.2f}** seconds using **{num_threads_used}** threads\n[SecHex-Pr0xyHunter](https://github.com/SecHex/SecHex-Pr0xyHunter)")
-
 
         webhook = DiscordWebhook(url=webhook_url)
         webhook.add_embed(embed)
@@ -210,7 +177,6 @@ async def main():
             await asyncio.sleep(restart_interval)
         else:
             print("Exiting...")
-            break
 
 if __name__ == "__main__":
     asyncio.run(main())
