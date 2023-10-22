@@ -9,6 +9,8 @@ import requests
 import asyncio
 from bs4 import BeautifulSoup
 import platform
+import time
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
 
 
@@ -110,13 +112,15 @@ def test_proxy(ip, port, good_proxies):
         s.close()
 
 
-
-
-def discord_webhook(txt_filename, webhook_url):
+def discord_webhook(txt_filename, webhook_url, message=None):
     files = {'file': (txt_filename, open(txt_filename, 'rb'), 'text/plain')}
-    response = requests.post(webhook_url, files=files)
 
+    if message:
+        data = {'content': message}
+    else:
+        data = {}
 
+    response = requests.post(webhook_url, files=files, data=data)
 
     if response.status_code == 200:
         print(f"proxys '{txt_filename}' sent to Discord successfully!")
@@ -150,10 +154,11 @@ async def main():
 
         await asyncio.sleep(4)
 
-
     if not webhook_url:
         print("Webhook URL is missing in config.json.")
         return
+
+    start_time = time.time()
 
     while True:
         if proxy_scraper:
@@ -179,10 +184,25 @@ async def main():
                 for proxy in proxies:
                     ip, port = proxy.strip().split(':')
                     executor.submit(test_proxy, ip, port, good_proxies)
+                    num_threads_used = num_threads
 
         with open("good_proxies.txt", 'w') as f:
             for proxy in good_proxies:
                 f.write(proxy + "\n")
+
+        num_good_proxies = len(good_proxies)
+        scan_duration = time.time() - start_time
+
+        embed = DiscordEmbed(title="SecHex-Pr0xyHunter V1.0",
+                             color=16777215)
+        embed.set_description(
+            f"Found **{num_good_proxies}** good proxies in **{scan_duration:.2f}** seconds using **{num_threads_used}** threads\n[SecHex-Pr0xyHunter](https://github.com/SecHex/SecHex-Pr0xyHunter)")
+
+
+        webhook = DiscordWebhook(url=webhook_url)
+        webhook.add_embed(embed)
+        webhook.execute()
+
         discord_webhook("good_proxies.txt", webhook_url)
 
         if restart_interval:
