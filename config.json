@@ -1,9 +1,10 @@
 {
-    "webhook_url": "dyda",
-    "num_threads": 10,
+    "webhook_url": "https://canary.discord.com/api/webhooks/1165693190188310649/Osf8uDqDqIYfhSQH_lBENZBRWRQvoDR2fI3il9ulUqLwcICAzo3C1En_hhjU7FdvI6sU",
+    "num_threads": 35,
     "proxy_file": "proxy.txt",
-    "proxy_scraper": true,
-    "restart_interval": false
-    "thread_logs": true
+    "proxy_scraper": false,
+    "restart_interval": 1520,
+    "thread_logs": false,
+    "pastebin_api_key": "your api key fella"
 }
 
