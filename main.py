@@ -16,15 +16,29 @@ from functions.scrapybacky import socks5scrapy, socks4scrapy, socks4scrapy_no2
 
 banner_text = f"""
 {Fore.RED}
-   ▄▄▄▄▄   ▄███▄   ▄█▄     ▄  █ ▄███▄      ▄  
-  █     ▀▄ █▀   ▀  █▀ ▀▄  █   █ █▀   ▀ ▀▄   █ 
-▄  ▀▀▀▀▄   ██▄▄    █   ▀  ██▀▀█ ██▄▄     █ ▀  
- ▀▄▄▄▄▀    █▄   ▄▀ █▄  ▄▀ █   █ █▄   ▄▀ ▄ █   
-           ▀███▀   ▀███▀     █  ▀███▀  █   ▀▄ 
-                            ▀           ▀                                                                                                                 
+⠀⠀⢀⣤⣶⣶⣤⣄⡀
+⠀⢀⣿⣿⣿⣿⣿⣿⣿⡆       
+⠀⠸⣿⣿⣿⣿⣿⡟⡟⡗      
+⠀⠀⠙⠏⠯⠛⣉⢲⣧⠟  
+⠀⠀⠠⢭⣝⣾⠿⣴⣿⠇     discord.gg/SecHex
+⠀⠀⢐⣺⡿⠁⠀⠈⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⣶⣶⣶⣶⣶⣶⠀
+⠀⠀⣚⣿⠃ ⣶⣶⣶⣶
+⢀⣿⣿⣿⣷⢒⣢⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣶⣶⣄⠄
+⢰⣿⣿⡿⣿⣦⠬⢝⡄⠀⠀⠀⠀⠀⠀⢠⣿⠿⠿⠟⠛⠋⠁
+⠠⢿⣿⣷⠺⣿⣗⠒⠜⡄⠀⠀⠀⠀⣴⠟⠁
+⠀⣰⣿⣷⣍⡛⣯⣯⣙⡁⠀⠀⣠⡾⠁
+⠀⠨⢽⣿⣷⢍⣛⣶⢷⣼⣠⣾⠋
+⠀⠀⠘⢿⣿⣖⠬⣹⣶⣿⠟⠁
+⠀⠀⠀⠚⠿⠿⡒⠨⠛⠋
+⠀⠀⠀⠐⢒⣛⣷
+⠀⠀⠀⢘⣻⣭⣭
+⠀⠀⠀⡰⢚⣺⣿
+⠀⠀⢠⣿⣿⣿⣿⣦⡄
+⠀⠀⢸⡿⢿⣿⢿⡿⠃
+⠀⠀⠘⡇⣸⣿⣿⣿⣆                                                                                                   
 {Fore.RESET}
 """
-banner_bio = f"{Fore.GREEN}Pr0xyHunter V1.0{Fore.RESET}"
+banner_bio = f"{Fore.GREEN}Pr0xyHunter V1.1{Fore.RESET}"
 banner_server = f"{Fore.GREEN}discord.gg/SecHex{Fore.RESET}"
 
 print(banner_text)
@@ -32,8 +46,7 @@ print(banner_bio)
 print(banner_server)
 init(autoreset=True)
 print_lock = threading.Lock()
-previous_thread_count = 0
-
+timer_thread_stop = threading.Event()
 
 def set_title(title):
     if platform.system() == "Windows":
@@ -41,11 +54,16 @@ def set_title(title):
     else:
         print(f"\033]0;{title}\007")
 
-set_title("Pr0xyHunter V1.0")
+set_title("Pr0xyHunter V1.1")
+
+
 
 
 
 def test_proxy(ip, port, good_proxies):
+    current_thread = threading.current_thread().name 
+    thread_identifier = f"{Fore.LIGHTCYAN_EX}Thread: {current_thread[-1]}{Fore.RESET}" 
+
     try:
         start_time = time.time()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -58,23 +76,24 @@ def test_proxy(ip, port, good_proxies):
 
         if len(response) < 2:
             with print_lock:
-                print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.LIGHTRED_EX}Ping:{Fore.RESET} not pingable")
+                print(f"{thread_identifier} | {Fore.RED}[BAD]{Fore.RESET} | {ip}:{port} | {Fore.LIGHTRED_EX}Ping: 404{Fore.RESET}")
             return
 
         status = response[1]
         if status == 0x5A:
             with print_lock:
-                print(f"{Fore.GREEN}[GOOD]{Fore.RESET} {ip}:{port} {Fore.GREEN}Ping:{Fore.RESET} {Fore.GREEN}{ping_time}ms{Fore.RESET}")
+                print(f"{thread_identifier} | {Fore.GREEN}[GOOD]{Fore.RESET} | {ip}:{port} | {Fore.GREEN}Ping: {ping_time}ms{Fore.RESET}")
             good_proxies.append(f"{ip}:{port}")
         else:
             with print_lock:
-                print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.LIGHTRED_EX}Ping:{Fore.RESET} not pingable")
+                print(f"{thread_identifier} | {Fore.RED}[BAD]{Fore.RESET} | {ip}:{port} | {Fore.LIGHTRED_EX}Ping: 404{Fore.RESET}")
 
     except:
         with print_lock:
-            print(f"{Fore.RED}[BAD]{Fore.RESET} {ip}:{port} {Fore.LIGHTRED_EX}Ping:{Fore.RESET} not pingable")
+            print(f"{thread_identifier} | {Fore.RED}[BAD]{Fore.RESET} | {ip}:{port} | {Fore.LIGHTRED_EX}Ping: 404{Fore.RESET}")
     finally:
         s.close()
+
 
 
 def discord_webhook(txt_filename, webhook_url, message=None):
@@ -101,6 +120,9 @@ def count_active_threads():
             print(f"{Fore.LIGHTCYAN_EX}Active Threads:{Fore.RESET} {num_active_threads}")
             previous_thread_count = num_active_threads
         time.sleep(5)
+
+
+
 
 async def main():
     with open('config.json', 'r') as config_file:
@@ -159,10 +181,11 @@ async def main():
             for proxy in good_proxies:
                 f.write(proxy + "\n")
 
+
         num_good_proxies = len(good_proxies)
         scan_duration = time.time() - start_time
 
-        embed = DiscordEmbed(title="SecHex-Pr0xyHunter V1.0", color=16777215)
+        embed = DiscordEmbed(title="SecHex-Pr0xyHunter V1.1", color=16777215)
         embed.set_description(
             f"Found **{num_good_proxies}** good proxies in **{scan_duration:.2f}** seconds using **{num_threads_used}** threads\n[SecHex-Pr0xyHunter](https://github.com/SecHex/SecHex-Pr0xyHunter)")
 
@@ -177,6 +200,10 @@ async def main():
             await asyncio.sleep(restart_interval)
         else:
             print("Exiting...")
+
+
+
+
 
 if __name__ == "__main__":
     asyncio.run(main())
