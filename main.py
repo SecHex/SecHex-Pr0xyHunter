@@ -61,8 +61,8 @@ set_title("Pr0xyHunter V1.1")
 
 
 def test_proxy(ip, port, good_proxies):
-    current_thread = threading.current_thread().name 
-    thread_identifier = f"{Fore.LIGHTCYAN_EX}Thread: {current_thread[-1]}{Fore.RESET}" 
+    current_thread = threading.current_thread().name
+    thread_identifier = f"{Fore.LIGHTCYAN_EX}Thread: {current_thread[-1]}{Fore.RESET}"
 
     try:
         start_time = time.time()
@@ -122,6 +122,26 @@ def count_active_threads():
         time.sleep(5)
 
 
+def create_pastebin(proxies, pastebin_api_key, webhook_url):
+    try:
+        pastebin_url = "https://pastebin.com/api/api_post.php"
+        proxies_data = "\n".join(proxies)
+
+        response = requests.post(pastebin_url, data={
+            'api_dev_key': pastebin_api_key,
+            'api_option': 'paste',
+            'api_paste_code': proxies_data
+        })
+
+        if response.status_code == 200:
+            pastebin_url = response.text
+            print(f"Pastebin URL: {pastebin_url}")
+            discord_webhook(pastebin_url, webhook_url)
+        else:
+            print(f"Failed to create Pastebin. Status Code: {response.status_code}")
+
+    except Exception as e:
+        print(f"Failed to create Pastebin: {str(e)}")
 
 
 async def main():
@@ -133,7 +153,7 @@ async def main():
         proxy_scraper = config.get('proxy_scraper', False)
         restart_interval = config.get('restart_interval', None)
         active_threads_enabled = config.get('thread_logs', True)
-
+        pastebin_api_key = config.get('pastebin_api_key', '')
 
         if active_threads_enabled:
             active_thread_checker = threading.Thread(target=count_active_threads)
@@ -181,7 +201,7 @@ async def main():
             for proxy in good_proxies:
                 f.write(proxy + "\n")
 
-
+        create_pastebin(good_proxies, pastebin_api_key, webhook_url)
         num_good_proxies = len(good_proxies)
         scan_duration = time.time() - start_time
 
@@ -200,10 +220,6 @@ async def main():
             await asyncio.sleep(restart_interval)
         else:
             print("Exiting...")
-
-
-
-
 
 if __name__ == "__main__":
     asyncio.run(main())
