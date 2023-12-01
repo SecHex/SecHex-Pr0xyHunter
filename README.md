@@ -10,6 +10,7 @@ Features:
 - Multithreaded Proxy Testing
 - Restart Functionality (testing)
 - Error Handling
+- Pastbin Integration
 
 # Planned Features
 - More proxy support (http, ssl, ...)
